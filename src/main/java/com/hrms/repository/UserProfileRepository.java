@@ -1,6 +1,7 @@
 package com.hrms.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,4 +16,6 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long>{
 	
 	@Query("select up from UserProfile up where up.user.isActive=:active and up.isActive=:active")
 	List<UserProfile> findActiveUserProfile(@Param("active") String isActive);
+	
+	Optional<UserProfile> findByUser_Id(Long id);
 }

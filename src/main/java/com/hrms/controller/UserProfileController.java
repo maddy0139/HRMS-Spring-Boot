@@ -3,12 +3,14 @@ package com.hrms.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,6 +26,8 @@ import com.hrms.repository.DesignationRepository;
 import com.hrms.repository.UserProfileRepository;
 import com.hrms.repository.UserRepository;
 import com.hrms.util.AppConstants;
+
+import ch.qos.logback.core.joran.util.beans.BeanUtil;
 
 @RestController
 @RequestMapping("/api")
@@ -50,6 +54,16 @@ public class UserProfileController {
 		return new ResponseEntity<ResponseBean>(response,HttpStatus.OK);
 	}
 	
+	@GetMapping("/userProfiles/user/{id}")
+	private ResponseEntity<ResponseBean> getUserProfileByUserId(@PathVariable(value = "id")Long id)
+	{
+		UserProfile profile = userProfileRepository.findByUser_Id(id)
+				.orElseThrow(()->new ResourceNotFoundException("UserProfile", "id", id));
+		
+		ResponseBean response = new ResponseBean(new UserProfileResponse(profile, profile.getDesignation(), profile.getUser()));
+		
+		return new ResponseEntity<ResponseBean>(response,HttpStatus.OK);
+	}
 	
 	@PostMapping("/userProfiles/new")
 	private ResponseEntity<ResponseBean> addNewUserprofile(@RequestBody UserProfile profile,@RequestParam(value = "userId")Long userId,@RequestParam(value = "desId", defaultValue=AppConstants.DEFAULT_DESIGNATION_ID)Long desId)
@@ -104,6 +118,28 @@ public class UserProfileController {
 		});
 		ResponseBean response = new ResponseBean(results);
 		return new ResponseEntity<ResponseBean>(response,HttpStatus.OK);
+	}
+	
+	@PutMapping("/userProfiles/user/{id}")
+	private ResponseEntity<ResponseBean> updateUserProfileByUserId(@RequestParam(value="desId")Long desId ,@PathVariable(value="id")Long id,@RequestBody UserProfile profileDetails)
+	{
+		UserProfile profile = userProfileRepository.findById(id)
+				.orElseThrow(()-> new ResourceNotFoundException("User", "id", id));
+		
+		profile.setFirstName(profileDetails.getFirstName());
+		profile.setLastName(profileDetails.getLastName());
+		profile.setGender(profileDetails.getGender());
+		profile.setIsActive(profileDetails.getIsActive());
+		profile.setDesignation(new Designation(profileDetails.getDesignation().getId(),profileDetails.getDesignation().getDesignation()));
+		
+		User user = new User();
+		user.setId(id);
+		profile.setUser(user);
+		UserProfile res = userProfileRepository.saveAndFlush(profile);
+		UserProfileResponse result = new UserProfileResponse(res, res.getDesignation(), res.getUser());
+		ResponseBean response = new ResponseBean(result);
+		return new ResponseEntity<ResponseBean>(response,HttpStatus.OK);
+		
 	}
 	
 

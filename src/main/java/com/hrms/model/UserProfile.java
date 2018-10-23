@@ -50,13 +50,13 @@ public class UserProfile implements Serializable{
 	@Column(name = "is_active")
 	private String isActive;
 	
-	@OneToOne (cascade=CascadeType.ALL,fetch=FetchType.LAZY)
-	@JoinColumn(name="designation_id", unique=true, insertable=true, updatable=true)
+	@OneToOne (cascade=CascadeType.MERGE,fetch=FetchType.LAZY)
+	@JoinColumn(name="designation_id", insertable=true, updatable=true)
 	private Designation designation;
 	
 
-	@OneToOne (cascade=CascadeType.ALL,fetch=FetchType.LAZY)
-	@JoinColumn(name="user_id", unique= true, nullable=true, insertable=true, updatable=true)
+	@OneToOne (cascade=CascadeType.MERGE,fetch=FetchType.LAZY)
+	@JoinColumn(name="user_id", unique= true, insertable=true, updatable=true)
 	private User user;
 
 	public UserProfile() {

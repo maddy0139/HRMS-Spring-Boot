@@ -39,6 +39,11 @@ public class Designation implements Serializable {
 		this.id = id;
 		this.designation = designation;
 	}
+	
+	public Designation(Long id) {
+		super();
+		this.id = id;
+	}
 
 	public String getDesignation() {
 		return designation;
