@@ -11,7 +11,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-import ch.qos.logback.classic.db.names.ColumnName;
+
 
 @Entity
 @Table(name = "users",

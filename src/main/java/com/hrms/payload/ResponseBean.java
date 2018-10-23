@@ -4,6 +4,10 @@ import java.io.Serializable;
 
 public class ResponseBean implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Object payload;
 	private StatusCode status;
 	

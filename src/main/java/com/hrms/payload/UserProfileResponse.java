@@ -11,7 +11,7 @@ public class UserProfileResponse {
 	private String lastName;
 	private Gender gender;
 	private String isActive;
-	private DesignationResponse designation;
+	private Designation designation;
 	private UserSummary userSummary;
 	
 	public UserProfileResponse(UserProfile userProfile, Designation designation,User user) {
@@ -20,11 +20,11 @@ public class UserProfileResponse {
 		this.lastName = userProfile.getLastName();
 		this.gender = userProfile.getGender();
 		this.isActive = userProfile.getIsActive();
-		this.designation = new DesignationResponse(designation.getId(), designation.getDesignation());
+		this.designation = new Designation(designation.getId(), designation.getDesignation());
 		this.userSummary = new UserSummary(user.getId(),user.getEmail(),user.getUserName());
 	}
 	
-	public DesignationResponse getDesignation() {
+	public Designation getDesignation() {
 		return designation;
 	}
 	public String getFirstName() {
@@ -44,7 +44,7 @@ public class UserProfileResponse {
 		return userSummary;
 	}
 
-	public void setDesignation(DesignationResponse designation) {
+	public void setDesignation(Designation designation) {
 		this.designation = designation;
 	}
 

@@ -1,6 +1,6 @@
 package com.hrms.controller;
 
-import java.net.URI;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 
 import com.hrms.exception.ResourceNotFoundException;
 import com.hrms.model.User;
-import com.hrms.payload.ApiResponse;
+
 import com.hrms.payload.ResponseBean;
 import com.hrms.payload.UserSummary;
 import com.hrms.repository.UserRepository;
@@ -32,7 +32,7 @@ public class UserController {
 	
 	
 	@GetMapping("/users/all")
-	private List<UserSummary> getUserDetails()
+	private ResponseEntity<ResponseBean> getUserDetails()
 	{
 		List<User> users = new ArrayList<>();
 		users = userRepository.findAll();
@@ -41,17 +41,19 @@ public class UserController {
 		users.forEach((user)->{
 			summaries.add(new UserSummary(user.getId(),user.getEmail(),user.getUserName()));
 		});
-		return summaries;
+		ResponseBean response = new ResponseBean(summaries);
+		return new ResponseEntity<ResponseBean>(response,HttpStatus.OK);
 	}
 	
 	@GetMapping("/users/{id}")
-	private UserSummary getUserDetails(@PathVariable(value = "id")Long id)
+	private ResponseEntity<ResponseBean> getUserDetails(@PathVariable(value = "id")Long id)
 	{
 		User user = userRepository.findById(id)
 				.orElseThrow(()->new ResourceNotFoundException("User", "id", id));
 		
 		UserSummary summary = new UserSummary(user.getId(),user.getEmail(),user.getUserName());
-		return summary;
+		ResponseBean response = new ResponseBean(summary);
+		return new ResponseEntity<ResponseBean>(response,HttpStatus.OK);
 	}
 	
 	@PostMapping("/users/new")
@@ -59,20 +61,9 @@ public class UserController {
 	{
 		
 		User result = userRepository.saveAndFlush(user);
-		/*URI location = ServletUriComponentsBuilder
-                .fromCurrentContextPath().path("/users/{id}")
-                .buildAndExpand(result.getUserName()).toUri();
-
-        return ResponseEntity.created(location).body(new ApiResponse(true, "User created successfully"));*/
-		
 		ResponseBean responseBean = new ResponseBean(result);
 		
 		return new ResponseEntity<>(responseBean,HttpStatus.OK);
 	}
 	
-//	@GetMapping("/users/active/{isActive}")
-//	private List<User> getActiveUsers(@PathVariable(value = "isActive")String isActive)
-//	{
-//		return userRepository.findActiveUsers(isActive);
-//	}
 }

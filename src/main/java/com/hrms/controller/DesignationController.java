@@ -1,9 +1,10 @@
 package com.hrms.controller;
 
-import java.net.URI;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,11 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 
 import com.hrms.exception.ResourceNotFoundException;
 import com.hrms.model.Designation;
 import com.hrms.payload.ApiResponse;
+import com.hrms.payload.ResponseBean;
 import com.hrms.repository.DesignationRepository;
 
 @RestController
@@ -26,28 +28,28 @@ public class DesignationController {
 	private DesignationRepository designationRepository;
 	
 	@GetMapping("/designation/all")
-	private List<Designation> getAlldesignation()
+	private ResponseEntity<ResponseBean> getAlldesignation()
 	{
-		return designationRepository.findAll();
+		List<Designation> designations = designationRepository.findAll();
+		ResponseBean responseBean = new ResponseBean(designations);
+		return new ResponseEntity<ResponseBean>(responseBean,HttpStatus.OK);
 	}
 	
 	@GetMapping("/designation/{id}")
-	private Designation getdesignation(@PathVariable(value = "id")Long id)
+	private ResponseEntity<ResponseBean> getdesignation(@PathVariable(value = "id")Long id)
 	{
 		Designation designation = designationRepository.findById(id)
 				.orElseThrow(()-> new ResourceNotFoundException("Designation","id",id));
-		return designation;
+		ResponseBean responseBean = new ResponseBean(designation);
+		return new ResponseEntity<ResponseBean>(responseBean,HttpStatus.OK);
 	}
 	
 	@PostMapping("/designation/new")
-	private ResponseEntity<?> addNewrepository(@RequestBody Designation designation)
+	private ResponseEntity<ApiResponse> addNewrepository(@RequestBody Designation designation)
 	{
-		Designation result = designationRepository.saveAndFlush(designation);
-		URI location = ServletUriComponentsBuilder
-                .fromCurrentContextPath().path("/designation/{id}")
-                .buildAndExpand(result.getDesignation()).toUri();
-
-        return ResponseEntity.created(location).body(new ApiResponse(true, "Designation added successfully"));
+		designationRepository.saveAndFlush(designation);
+        ApiResponse response = new ApiResponse(true, "Designation added successfully");
+		return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
 	}
 	
 	

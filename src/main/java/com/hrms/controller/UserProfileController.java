@@ -40,17 +40,19 @@ public class UserProfileController {
 	
 	
 	@GetMapping("/userProfiles/{id}")
-	private UserProfile getUserProfile(@PathVariable(value = "id")Long id)
+	private ResponseEntity<ResponseBean> getUserProfile(@PathVariable(value = "id")Long id)
 	{
 		UserProfile profile = userProfileRepository.findById(id)
 				.orElseThrow(()->new ResourceNotFoundException("UserProfile", "id", id));
 		
-		return profile;
+		ResponseBean response = new ResponseBean(new UserProfileResponse(profile, profile.getDesignation(), profile.getUser()));
+		
+		return new ResponseEntity<ResponseBean>(response,HttpStatus.OK);
 	}
 	
 	
 	@PostMapping("/userProfiles/new")
-	private UserProfile addNewUserprofile(@RequestBody UserProfile profile,@RequestParam(value = "userId")Long userId,@RequestParam(value = "desId", defaultValue=AppConstants.DEFAULT_DESIGNATION_ID)Long desId)
+	private ResponseEntity<ResponseBean> addNewUserprofile(@RequestBody UserProfile profile,@RequestParam(value = "userId")Long userId,@RequestParam(value = "desId", defaultValue=AppConstants.DEFAULT_DESIGNATION_ID)Long desId)
 	{
 		User user = userRepository.findById(userId)
 				.orElseThrow(()-> new ResourceNotFoundException("User", "id", userId));
@@ -60,25 +62,38 @@ public class UserProfileController {
 				.orElseThrow(()-> new ResourceNotFoundException("Designation", "id", desId));
 		profile.setDesignation(designation);
 		
-		return userProfileRepository.saveAndFlush(profile);
+		UserProfile res = userProfileRepository.saveAndFlush(profile);
+		ResponseBean response = new ResponseBean(new UserProfileResponse(res, res.getDesignation(), res.getUser()));
+		return new ResponseEntity<ResponseBean>(response,HttpStatus.OK);
 	}
 	
 	
 	@GetMapping("/users/active/{isActive}")
-	private List<User> getActiveUsers(@PathVariable(value = "isActive")String isActive)
+	private ResponseEntity<ResponseBean> getActiveUsers(@PathVariable(value = "isActive")String isActive)
 	{
-		return userProfileRepository.findActiveUsers(isActive);
+		List<User> users = new ArrayList<User>();
+		users = userProfileRepository.findActiveUsers(isActive);
+		ResponseBean response = new ResponseBean(users);
+		return new ResponseEntity<ResponseBean>(response,HttpStatus.OK);
 	}
 	
 	
-	@GetMapping("/userprofile/active/{isActive}")
-	private List<UserProfile> getActiveUsersProfile(@PathVariable(value = "isActive")String isActive)
+	@GetMapping("/userProfiles/active/{isActive}")
+	private ResponseEntity<ResponseBean> getActiveUsersProfile(@PathVariable(value = "isActive")String isActive)
 	{
-		return userProfileRepository.findActiveUserProfile(isActive);
+		List<UserProfile> users = new ArrayList<UserProfile>();
+		List<UserProfileResponse> results = new ArrayList<UserProfileResponse>();
+		users = userProfileRepository.findActiveUserProfile(isActive);
+		users.forEach(user ->{
+			results.add(new UserProfileResponse(user,user.getDesignation(),user.getUser()));
+		});
+		ResponseBean response = new ResponseBean(results);
+		return new ResponseEntity<ResponseBean>(response,HttpStatus.OK);
+		
 	}
 	
 	
-	@GetMapping("/usersprofiles/all")
+	@GetMapping("/userProfiles/all")
 	private ResponseEntity<ResponseBean> getAllUserProfiles()
 	{
 		List<UserProfile> users = new ArrayList<UserProfile>();
